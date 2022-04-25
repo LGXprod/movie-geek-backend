@@ -104,7 +104,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
-env/
+movie_geek_env/
 venv/
 ENV/
 env.bak/
