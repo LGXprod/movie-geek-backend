@@ -4,6 +4,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # removes tf informative messages
 import json
 import random
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import numpy as np
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
@@ -73,6 +74,7 @@ def getRandomMovies(num_rand_movies):
     return selectedMovies
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/recommendations', methods=['POST'])
 def recommendations():
@@ -84,7 +86,12 @@ def recommendations():
 
 @app.route('/quiz', methods=["GET"])
 def quiz():
-    return jsonify(getRandomMovies(9))
+    movies = getRandomMovies(9)
+
+    for movie in movies:
+        movie["genres"] = movie["genres"].replace("|", ", ")
+
+    return jsonify(movies)
 
 @app.route('/saved-movies', methods=['GET'])
 def saved_movies():
