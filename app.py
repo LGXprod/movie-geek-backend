@@ -2,6 +2,7 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # removes tf informative messages
 
 import json
+import random
 from flask import Flask, request, jsonify
 import numpy as np
 import tensorflow.compat.v1 as tf
@@ -55,6 +56,22 @@ def getRecommendations(user_movie_ids, user_ratings):
 
     return [(lambda movie_id: {"movieId": movie_id, **movies[str(movie_id)]})(movie_id) for movie_id in top_10_movie_ids]
 
+def getRandomMovies(num_rand_movies):
+    selectedMovies = []
+
+    for i in range(0, num_rand_movies):
+        selected_movie_index = random.randint(0, num_movies)
+        print("s", selected_movie_index)
+
+        for movie_id in movie_id_to_index:
+            if movie_id_to_index[movie_id] == selected_movie_index:
+                movie_id = str(int(float(movie_id)))
+                print("m", movie_id)
+                selectedMovies.append({**{"movieId": movie_id}, **movies[movie_id]})
+                break
+
+    return selectedMovies
+
 app = Flask(__name__)
 
 @app.route('/recommendations', methods=['POST'])
@@ -64,6 +81,10 @@ def recommendations():
     movie_ratings = json.loads(bodyData["movie-ratings"])
 
     return jsonify(getRecommendations(movie_ids, movie_ratings))
+
+@app.route('/quiz', methods=["GET"])
+def quiz():
+    return jsonify(getRandomMovies(9))
 
 @app.route('/saved-movies', methods=['GET'])
 def saved_movies():
