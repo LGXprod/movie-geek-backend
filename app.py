@@ -31,14 +31,17 @@ with open('movies.json', 'r') as fp:
 movie_ids = movie_ids[:num_movies]
 
 def getRecommendations(user_movie_ids, user_ratings):
-    user_movie_indices = [(lambda movie_id: movie_id_to_index[str(float(movie_id))]+1)(movie_id) for movie_id in user_movie_ids]
+    user_movie_indices = [(lambda movie_id: movie_id_to_index[movie_id])(movie_id) for movie_id in user_movie_ids]
+    print("x")
     print(user_movie_indices)
 
     new_user_P_row_initial = np.random.rand(1, K)
     new_user_P_row = tf.Variable(new_user_P_row_initial, dtype=tf.float32)
     new_user_P_row_times_Q = tf.matmul(new_user_P_row, final_Q_matrix)
+    print("1")
     res = tf.gather(new_user_P_row_times_Q, user_movie_indices, axis=1)
     squared_error = tf.square(user_ratings - res)
+    print("2")
     loss = tf.reduce_sum(squared_error)
     optimizer = tf.train.GradientDescentOptimizer(0.01)
     predict = optimizer.minimize(loss)
@@ -53,6 +56,7 @@ def getRecommendations(user_movie_ids, user_ratings):
     predicted_movie_ratings = np.around(sess.run(new_user_P_row_times_Q), 3)[0].tolist()
 
     top_10_movie_ids = [x for y, x in sorted(zip(predicted_movie_ratings, movie_ids))][:10]
+    print("y")
     print(top_10_movie_ids)
 
     return [(lambda movie_id: {"movieId": movie_id, **movies[str(movie_id)]})(movie_id) for movie_id in top_10_movie_ids]
@@ -66,7 +70,7 @@ def getRandomMovies(num_rand_movies):
 
         for movie_id in movie_id_to_index:
             if movie_id_to_index[movie_id] == selected_movie_index:
-                movie_id = str(int(float(movie_id)))
+                movie_id = str(int(movie_id))
                 print("m", movie_id)
                 selectedMovies.append({**{"movieId": movie_id}, **movies[movie_id]})
                 break
@@ -78,11 +82,14 @@ CORS(app)
 
 @app.route('/recommendations', methods=['POST'])
 def recommendations():
-    bodyData = request.form
-    movie_ids = json.loads(bodyData["movie-ids"])
-    movie_ratings = json.loads(bodyData["movie-ratings"])
+    # bodyData = request.form
+    # movie_ids = json.loads(bodyData["movie-ids"])
+    # movie_ratings = json.loads(bodyData["movie-ratings"])
+    movie_ratings = request.form
+    print("m", list(movie_ratings.keys()))
+    print("m2",  list(movie_ratings.values()))
 
-    return jsonify(getRecommendations(movie_ids, movie_ratings))
+    return jsonify(getRecommendations(list(movie_ratings.keys()), [int(x) for x in list(movie_ratings.values())]))
 
 @app.route('/quiz', methods=["GET"])
 def quiz():
