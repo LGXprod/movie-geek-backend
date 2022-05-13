@@ -66,12 +66,12 @@ def getRandomMovies(num_rand_movies):
 
     for i in range(0, num_rand_movies):
         selected_movie_index = random.randint(0, num_movies)
-        print("s", selected_movie_index)
+        # print("s", selected_movie_index)
 
         for movie_id in movie_id_to_index:
             if movie_id_to_index[movie_id] == selected_movie_index:
                 movie_id = str(int(movie_id))
-                print("m", movie_id)
+                # print("m", movie_id)
                 selectedMovies.append({**{"movieId": movie_id}, **movies[movie_id]})
                 break
 
@@ -85,7 +85,7 @@ def recommendations():
     # bodyData = request.form
     # movie_ids = json.loads(bodyData["movie-ids"])
     # movie_ratings = json.loads(bodyData["movie-ratings"])
-    movie_ratings = request.form
+    movie_ratings = request.json
     print("m", list(movie_ratings.keys()))
     print("m2",  list(movie_ratings.values()))
 
