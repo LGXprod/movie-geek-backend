@@ -1,8 +1,10 @@
+import os
+
 from recommendations import getEnsembleRecommendations, getMovieQuiz
 from flask_cors import CORS
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
-import os
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # removes tf informative messages
 
 load_dotenv()
@@ -18,18 +20,12 @@ def recommendations():
 
 @app.route('/quiz', methods=["GET"])
 def quiz():
-    movies = getMovieQuiz(9)
-
-    for movie in movies:
-        movie["genres"] = movie["genres"].replace("|", ", ")
-
-    return jsonify(movies)
+    return jsonify(getMovieQuiz(9))
 
 
 @app.route('/saved-movies', methods=['GET'])
 def saved_movies():
     return "Hello World!"
-
 
 # Run the app
 if __name__ == "__main__":
